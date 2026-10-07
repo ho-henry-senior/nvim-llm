@@ -15,6 +15,34 @@ In short:
 - **RAG** gives the model relevant knowledge as context.
 - **LoRA** changes the model's learned behaviour.
 
+## RAG flow
+
+The intended question-to-answer flow is:
+
+```text
+Question
+   ↓
+MiniLM creates an embedding
+   ↓
+Semantic search
+   ↓
+3 relevant documentation chunks
+   ↓
+Build a prompt containing the question and retrieved chunks
+   ↓
+Qwen
+   ↓
+Answer
+```
+
+The documentation chunks are embedded with MiniLM before searching. Semantic
+search compares the question's embedding with those chunk embeddings and selects
+the three highest-scoring chunks to use as context.
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for planned improvements.
+
 ## Requirements
 
 - Python 3.14
