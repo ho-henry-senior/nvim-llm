@@ -4,6 +4,17 @@ An early prototype of a local LLM assistant for Neovim configuration. It current
 runs a hard-coded prompt through Qwen2.5-Coder and includes a small Lua-docs
 reading experiment.
 
+## LLM project terms
+
+See [LLM Project Terms](CONTEXT.md) for definitions of LLM, embedding, vector,
+semantic search, RAG, and LoRA. The `all-MiniLM-L6-v2` embeddings used in
+`src/search_docs.py` contain 384 numbers per vector.
+
+In short:
+
+- **RAG** gives the model relevant knowledge as context.
+- **LoRA** changes the model's learned behaviour.
+
 ## Requirements
 
 - Python 3.14
