@@ -3,6 +3,26 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+
+def create_chunks(text, max_size=1500):
+    paragraphs = text.split("\n\n")
+
+    chunks = []
+    current_chunk = ""
+
+    for paragraph in paragraphs:
+        if len(current_chunk) + len(paragraph) > max_size:
+            chunks.append(current_chunk)
+            current_chunk = paragraph
+        else:
+            current_chunk += "\n\n" + paragraph
+
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    return chunks
+
+
 files = [
     "docs/lua.txt",
     "docs/api.txt",
@@ -14,9 +34,8 @@ for filename in files:
     with open(filename) as f:
         docs += f.read()
 
-chunk_size = 1000
-
-chunks = [docs[i : i + chunk_size] for i in range(0, len(docs), chunk_size)]
+chunks = create_chunks(docs)
+print("Number of chunks:", len(chunks))
 
 model = SentenceTransformer(
     "all-MiniLM-L6-v2",
@@ -34,12 +53,13 @@ question_embedding = model.encode(question)
 scores = cos_sim(question_embedding, embeddings)[0]
 
 # Find the 3 highest scores
-best_matches = scores.argsort(descending=True)[:3]
+best_matches = scores.argsort(descending=True)[:5]
 
-# for index in best_matches:
-#     print("\n--- MATCH ---")
-#     print("Score:", scores[index].item())
-#     print(chunks[index])
+for index in best_matches:
+    print("\n--- RETRIEVED ---")
+    print("Score:", scores[index].item())
+    print(chunks[index])
+
 
 context = "\n\n".join(chunks[index] for index in best_matches)
 
