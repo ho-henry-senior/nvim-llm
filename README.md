@@ -52,6 +52,29 @@ The first run downloads `Qwen/Qwen2.5-Coder-1.5B-Instruct` from Hugging Face.
 The prompt is currently hard-coded in `src/run.py`; the script does not yet
 accept user input or use the Lua documentation as model context.
 
+## Documentation sources
+
+The `docs/` directory holds Vim and Neovim reference documentation. Neovim help
+files can be copied from the installed runtime's `doc/` directory.
+
+For a Homebrew installation, run this from the repository root to copy the API
+help file:
+
+```sh
+cp "$(brew --prefix neovim)/share/nvim/runtime/doc/api.txt" docs/
+```
+
+Replace `api.txt` with another help filename, such as `lua.txt`, as needed.
+This path follows the currently installed Homebrew version rather than a
+specific Cellar directory.
+
+The source installation used for the API help copy is **Neovim 0.12.5**
+(Homebrew package `0.12.5_1`). When refreshing files, record the source version
+here, since APIs and documentation can differ between releases. Check the
+installed version with `nvim --version`.
+
+Preserve upstream copyright and license notices when copying documentation.
+
 ## Project files
 
 - `src/run.py` — loads the model and generates a response to an example Neovim

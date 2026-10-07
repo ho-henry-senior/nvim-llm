@@ -1,15 +1,20 @@
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 
-with open("docs/lua.txt") as f:
-    docs = f.read()
+files = [
+    "docs/lua.txt",
+    "docs/api.txt",
+]
+
+docs = ""
+
+for filename in files:
+    with open(filename) as f:
+        docs += f.read()
 
 chunk_size = 1000
 
-chunks = [
-    docs[i:i + chunk_size]
-    for i in range(0, len(docs), chunk_size)
-]
+chunks = [docs[i : i + chunk_size] for i in range(0, len(docs), chunk_size)]
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
