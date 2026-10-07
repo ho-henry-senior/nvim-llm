@@ -1,22 +1,32 @@
 from sentence_transformers import SentenceTransformer
+from sentence_transformers.util import cos_sim
 
-# Load our documentation
 with open("docs/lua.txt") as f:
     docs = f.read()
 
-# Crude chunking, same as before
 chunk_size = 1000
 
-chunks = [docs[i : i + chunk_size] for i in range(0, len(docs), chunk_size)]
+chunks = [
+    docs[i:i + chunk_size]
+    for i in range(0, len(docs), chunk_size)
+]
 
-# Load a small embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Turn every chunk into a vector
+# Embed the documentation
 embeddings = model.encode(chunks)
 
-print("Chunks:", len(chunks))
-print("Embedding shape:", embeddings.shape)
-print()
-print("First embedding:")
-print(embeddings[0][:10])
+# Embed our question
+question = "How do I create an autocmd in Lua?"
+question_embedding = model.encode(question)
+
+# Compare the question with every chunk
+scores = cos_sim(question_embedding, embeddings)[0]
+
+# Find the 3 highest scores
+best_matches = scores.argsort(descending=True)[:3]
+
+for index in best_matches:
+    print("\n--- MATCH ---")
+    print("Score:", scores[index].item())
+    print(chunks[index])
