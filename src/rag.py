@@ -28,13 +28,22 @@ files = [
     "docs/api.txt",
 ]
 
-docs = ""
+chunks = []
 
 for filename in files:
     with open(filename) as f:
-        docs += f.read()
+        docs = f.read()
 
-chunks = create_chunks(docs)
+    file_chunks = create_chunks(docs)
+
+    for chunk in file_chunks:
+        chunks.append(
+            {
+                "source": filename,
+                "text": chunk,
+            }
+        )
+
 print("Number of chunks:", len(chunks))
 
 model = SentenceTransformer(
@@ -43,7 +52,9 @@ model = SentenceTransformer(
 )
 
 # Embed the documentation
-embeddings = model.encode(chunks)
+chunk_texts = [chunk["text"] for chunk in chunks]
+
+embeddings = model.encode(chunk_texts)
 
 # Embed our question
 question = "How do I create an autocmd in Lua?"
@@ -55,11 +66,29 @@ scores = cos_sim(question_embedding, embeddings)[0]
 # Find the 3 highest scores
 best_matches = scores.argsort(descending=True)[:5]
 
-for index in best_matches:
-    print("\n--- RETRIEVED ---")
-    print("Score:", scores[index].item())
-    print(chunks[index])
+questions = [
+    "How do I create an autocmd in Lua?",
+    "How do I create a Neovim autocommand?",
+    "How do I use nvim_create_autocmd?",
+]
 
+for question in questions:
+    question_embedding = model.encode(question)
+    scores = cos_sim(question_embedding, embeddings)[0]
+    best_matches = scores.argsort(descending=True)[:5]
+
+    print(f"\n\nQUESTION: {question}")
+
+    for index in best_matches:
+        chunk = chunks[index]
+
+        print("\n--- MATCH ---")
+        print("Score:", scores[index].item())
+        print("Source:", chunk["source"])
+        print(chunk["text"][:300].replace("\n", " "))
+
+
+exit()
 
 context = "\n\n".join(chunks[index] for index in best_matches)
 
