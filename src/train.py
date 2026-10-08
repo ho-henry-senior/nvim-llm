@@ -44,28 +44,32 @@ name, weight = next(
 before = weight.detach().clone()
 
 # Calculate prediction error
-outputs = model(
-    **inputs,
-    labels=inputs["input_ids"],
-)
-
-loss = outputs.loss
-print("Loss:", loss.item())
-
-# Calculate gradients
-loss.backward()
-
-# Update trainable weights
+# Set up the optimizer
 optimizer = torch.optim.AdamW(
     (p for p in model.parameters() if p.requires_grad),
     lr=0.001,
 )
 
-optimizer.step()
-optimizer.zero_grad()
+# Train for 20 steps
+for step in range(20):
+    optimizer.zero_grad()
 
-# Check whether a weight changed
+    outputs = model(
+        **inputs,
+        labels=inputs["input_ids"],
+    )
+
+    loss = outputs.loss
+    loss.backward()
+    optimizer.step()
+
+    print(f"Step {step + 1:2d} | Loss: {loss.item():.4f}")
+
+# Check how much our selected weight changed
 difference = (weight.detach() - before).abs().max().item()
-
-print("Weight:", name)
 print("Largest weight change:", difference)
+
+# Save the trained LoRA weights
+model.save_pretrained("models/neovim-lora")
+
+print("Saved LoRA adapter to models/neovim-lora")
