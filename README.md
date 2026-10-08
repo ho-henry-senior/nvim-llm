@@ -1,16 +1,15 @@
 # nvim-llm
 
-An early prototype of a local LLM assistant for Neovim configuration. It currently
-runs a hard-coded prompt through Qwen2.5-Coder and includes a small Lua-docs
-reading experiment.
+An early prototype of a local LLM assistant for Neovim configuration. It currently runs a hard-coded
+prompt through Qwen2.5-Coder and includes a small Lua-docs reading experiment.
 
 https://chatgpt.com/c/6ac6095a-59d4-83ed-8029-c0b70d5d4a6a
 
 ## LLM project terms
 
-See [LLM Project Terms](CONTEXT.md) for definitions of LLM, embedding, vector,
-semantic search, RAG, and LoRA. The `all-MiniLM-L6-v2` embeddings used in
-`src/search_docs.py` contain 384 numbers per vector.
+See [LLM Project Terms](CONTEXT.md) for definitions of LLM, embedding, vector, semantic search, RAG,
+and LoRA. The `all-MiniLM-L6-v2` embeddings used in `src/search_docs.py` contain 384 numbers per
+vector.
 
 In short:
 
@@ -37,13 +36,26 @@ Qwen
 Answer
 ```
 
-The documentation chunks are embedded with MiniLM before searching. Semantic
-search compares the question's embedding with those chunk embeddings and selects
-the three highest-scoring chunks to use as context.
+The documentation chunks are embedded with MiniLM before searching. Semantic search compares the
+question's embedding with those chunk embeddings and selects the three highest-scoring chunks to use
+as context.
 
 ## Roadmap
 
 See [ROADMAP.md](ROADMAP.md) for planned improvements.
+
+### Architecture
+
+1. Collect documentation — use Neovim's help files as our knowledge source.
+1. Split into chunks — break the documentation into manageable pieces.
+1. Create embeddings — represent each chunk as a vector capturing its meaning.
+1. Build a keyword index — use BM25 to find exact terms, including API names.
+1. Accept a question — let the user ask in natural language.
+1. Search in two ways — use embeddings for semantic similarity and BM25 for keyword relevance.
+1. Combine the results — rank the matches and select the most relevant chunks.
+1. Provide context to Qwen — include those chunks alongside the user's question.
+1. Generate an answer — ask Qwen to answer using the retrieved documentation.
+1. Evaluate and improve — test answers and refine retrieval where necessary.
 
 ## Requirements
 
@@ -55,8 +67,7 @@ The project has been set up with PyTorch 2.14.1 and Transformers 5.19.0.
 
 ## Setup
 
-From the repository root, create and activate a virtual environment, then install
-the dependencies:
+From the repository root, create and activate a virtual environment, then install the dependencies:
 
 ```sh
 python3 -m venv .venv
@@ -78,38 +89,33 @@ Run the example prompt:
 python src/run.py
 ```
 
-The first run downloads `Qwen/Qwen2.5-Coder-1.5B-Instruct` from Hugging Face.
-The prompt is currently hard-coded in `src/run.py`; the script does not yet
-accept user input or use the Lua documentation as model context.
+The first run downloads `Qwen/Qwen2.5-Coder-1.5B-Instruct` from Hugging Face. The prompt is
+currently hard-coded in `src/run.py`; the script does not yet accept user input or use the Lua
+documentation as model context.
 
 ## Documentation sources
 
-The `docs/` directory holds Vim and Neovim reference documentation. Neovim help
-files can be copied from the installed runtime's `doc/` directory.
+The `docs/` directory holds Vim and Neovim reference documentation. Neovim help files can be copied
+from the installed runtime's `doc/` directory.
 
-For a Homebrew installation, run this from the repository root to copy the API
-help file:
+For a Homebrew installation, run this from the repository root to copy the API help file:
 
 ```sh
 cp "$(brew --prefix neovim)/share/nvim/runtime/doc/api.txt" docs/
 ```
 
-Replace `api.txt` with another help filename, such as `lua.txt`, as needed.
-This path follows the currently installed Homebrew version rather than a
-specific Cellar directory.
+Replace `api.txt` with another help filename, such as `lua.txt`, as needed. This path follows the
+currently installed Homebrew version rather than a specific Cellar directory.
 
-The source installation used for the API help copy is **Neovim 0.12.5**
-(Homebrew package `0.12.5_1`). When refreshing files, record the source version
-here, since APIs and documentation can differ between releases. Check the
-installed version with `nvim --version`.
+The source installation used for the API help copy is **Neovim 0.12.5** (Homebrew package
+`0.12.5_1`). When refreshing files, record the source version here, since APIs and documentation can
+differ between releases. Check the installed version with `nvim --version`.
 
 Preserve upstream copyright and license notices when copying documentation.
 
 ## Project files
 
-- `src/run.py` — loads the model and generates a response to an example Neovim
-  keymap prompt.
+- `src/run.py` — loads the model and generates a response to an example Neovim keymap prompt.
 - `src/check_gpu.py` — reports the installed PyTorch version and MPS availability.
 - `src/read_docs.py` — reads and previews `docs/lua.txt`.
-- `docs/` — Vim and Neovim reference documentation. `docs/lua.txt` contains the
-  Lua documentation.
+- `docs/` — Vim and Neovim reference documentation. `docs/lua.txt` contains the Lua documentation.
