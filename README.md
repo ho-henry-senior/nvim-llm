@@ -4,6 +4,8 @@ An early prototype of a local LLM assistant for Neovim configuration. It current
 runs a hard-coded prompt through Qwen2.5-Coder and includes a small Lua-docs
 reading experiment.
 
+https://chatgpt.com/c/6ac6095a-59d4-83ed-8029-c0b70d5d4a6a
+
 ## LLM project terms
 
 See [LLM Project Terms](CONTEXT.md) for definitions of LLM, embedding, vector,
