@@ -1,7 +1,6 @@
-import torch
+
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 def create_chunks(text, max_size=1500):
@@ -12,7 +11,8 @@ def create_chunks(text, max_size=1500):
 
     for paragraph in paragraphs:
         if len(current_chunk) + len(paragraph) > max_size:
-            chunks.append(current_chunk)
+            if current_chunk:
+                chunks.append(current_chunk)
             current_chunk = paragraph
         else:
             current_chunk += "\n\n" + paragraph
@@ -23,6 +23,7 @@ def create_chunks(text, max_size=1500):
     return chunks
 
 
+# 1. Load documentation and create source-aware chunks
 files = [
     "docs/lua.txt",
     "docs/api.txt",
@@ -37,44 +38,49 @@ for filename in files:
     file_chunks = create_chunks(docs)
 
     for chunk in file_chunks:
-        chunks.append(
-            {
-                "source": filename,
-                "text": chunk,
-            }
-        )
+        chunks.append({
+            "source": filename,
+            "text": chunk,
+        })
 
 print("Number of chunks:", len(chunks))
 
+
+# 2. Load the embedding model
 model = SentenceTransformer(
     "all-MiniLM-L6-v2",
     local_files_only=True,
 )
 
-# Embed the documentation
-chunk_texts = [chunk["text"] for chunk in chunks]
 
+# 3. Embed the documentation
+chunk_texts = [chunk["text"] for chunk in chunks]
 embeddings = model.encode(chunk_texts)
 
-# Embed our question
-question = "How do I create an autocmd in Lua?"
-question_embedding = model.encode(question)
 
-# Compare the question with every chunk
-scores = cos_sim(question_embedding, embeddings)[0]
-
-# Find the 3 highest scores
-best_matches = scores.argsort(descending=True)[:5]
-
+# 4. Test different questions
 questions = [
     "How do I create an autocmd in Lua?",
     "How do I create a Neovim autocommand?",
     "How do I use nvim_create_autocmd?",
 ]
 
+
 for question in questions:
+    # Convert the question into an embedding
     question_embedding = model.encode(question)
+
+    # Calculate semantic similarity scores
     scores = cos_sim(question_embedding, embeddings)[0]
+
+    # Boost chunks containing this exact API name
+    keyword = "nvim_create_autocmd"
+
+    for i, chunk in enumerate(chunks):
+        if keyword in chunk["text"]:
+            scores[i] += 0.3
+
+    # Find the 5 highest-scoring chunks
     best_matches = scores.argsort(descending=True)[:5]
 
     print(f"\n\nQUESTION: {question}")
@@ -88,74 +94,5 @@ for question in questions:
         print(chunk["text"][:300].replace("\n", " "))
 
 
-exit()
-
-context = "\n\n".join(chunks[index] for index in best_matches)
-
-
-prompt = f"""
-You are a Neovim documentation assistant.
-
-Answer the question using ONLY the documentation provided below.
-
-Rules:
-- Do not use knowledge that is not present in the documentation.
-- Do not invent API names, parameters, fields, or behaviour.
-- If the documentation does not contain enough information to answer,
-  say: "The provided documentation does not contain enough information."
-- Include relevant code examples when the documentation supports them.
-
-DOCUMENTATION:
-
-{context}
-
-QUESTION:
-
-{question}
-"""
-
-model_name = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
-
-tokenizer = AutoTokenizer.from_pretrained(
-    model_name,
-    local_files_only=True,
-)
-
-qwen = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    dtype=torch.float16,
-    local_files_only=True,
-).to("mps")
-
-
-messages = [
-    {
-        "role": "user",
-        "content": prompt,
-    }
-]
-
-text = tokenizer.apply_chat_template(
-    messages,
-    tokenize=False,
-    add_generation_prompt=True,
-)
-
-inputs = tokenizer(
-    text,
-    return_tensors="pt",
-).to("mps")
-
-outputs = qwen.generate(
-    **inputs,
-    max_new_tokens=300,
-)
-
-generated = outputs[0][inputs.input_ids.shape[1] :]
-
-answer = tokenizer.decode(
-    generated,
-    skip_special_tokens=True,
-)
-
-print(answer)
+# Stop here while testing retrieval.
+# We'll reconnect Qwen once we're happy with the results.
