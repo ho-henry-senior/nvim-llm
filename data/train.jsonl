@@ -1,0 +1,5 @@
+{"question":"How do I create an autocommand in Neovim Lua?","answer":"Use vim.api.nvim_create_autocmd(event, opts). For example: vim.api.nvim_create_autocmd('BufEnter', { callback = function() print('Buffer entered') end })"}
+{"question":"How do I run Lua code after saving a file?","answer":"Create an autocommand for BufWritePost: vim.api.nvim_create_autocmd('BufWritePost', { callback = function() print('File saved') end })"}
+{"question":"How do I restrict an autocommand to Python files?","answer":"Use the pattern option: vim.api.nvim_create_autocmd('BufWritePost', { pattern = '*.py', callback = function() print('Python file saved') end })"}
+{"question":"How do I create an autocommand group?","answer":"Use vim.api.nvim_create_augroup('MyGroup', { clear = true }) to create a named group."}
+{"question":"How do I remove an autocommand?","answer":"Use vim.api.nvim_del_autocmd(id), where id is the identifier returned by vim.api.nvim_create_autocmd."}

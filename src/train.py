@@ -1,8 +1,13 @@
+import json
+
 import torch
 from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 model_name = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+
+with open("data/train.jsonl") as f:
+    examples = [json.loads(line) for line in f]
 
 tokenizer = AutoTokenizer.from_pretrained(
     model_name,
@@ -19,57 +24,69 @@ config = LoraConfig(
     r=8,
     lora_alpha=16,
     target_modules=["q_proj", "v_proj"],
-    lora_dropout=0.0,
-    bias="none",
     task_type="CAUSAL_LM",
 )
 
 model = get_peft_model(model, config)
 model.train()
 
-# Our first training example
-example = """Question: How do I create an autocmd in Neovim Lua?
-Answer: Use vim.api.nvim_create_autocmd to register an autocommand."""
-
-inputs = tokenizer(
-    example,
-    return_tensors="pt",
-).to("mps")
-
-# Find one trainable LoRA weight
-name, weight = next(
-    (name, param) for name, param in model.named_parameters() if "lora_B" in name
-)
-
-before = weight.detach().clone()
-
-# Calculate prediction error
-# Set up the optimizer
 optimizer = torch.optim.AdamW(
     (p for p in model.parameters() if p.requires_grad),
-    lr=0.001,
+    lr=0.0001,
 )
 
-# Train for 20 steps
-for step in range(20):
-    optimizer.zero_grad()
 
-    outputs = model(
-        **inputs,
-        labels=inputs["input_ids"],
+def prepare_example(example):
+    messages = [
+        {"role": "user", "content": example["question"]},
+    ]
+
+    prompt = tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True,
     )
 
-    loss = outputs.loss
-    loss.backward()
-    optimizer.step()
+    answer = example["answer"] + tokenizer.eos_token
 
-    print(f"Step {step + 1:2d} | Loss: {loss.item():.4f}")
+    prompt_ids = tokenizer(
+        prompt,
+        add_special_tokens=False,
+    )["input_ids"]
 
-# Check how much our selected weight changed
-difference = (weight.detach() - before).abs().max().item()
-print("Largest weight change:", difference)
+    answer_ids = tokenizer(
+        answer,
+        add_special_tokens=False,
+    )["input_ids"]
 
-# Save the trained LoRA weights
-model.save_pretrained("models/neovim-lora")
+    input_ids = prompt_ids + answer_ids
 
-print("Saved LoRA adapter to models/neovim-lora")
+    # -100 tells PyTorch to ignore these tokens when calculating loss
+    labels = [-100] * len(prompt_ids) + answer_ids
+
+    return {
+        "input_ids": torch.tensor([input_ids], device="mps"),
+        "labels": torch.tensor([labels], device="mps"),
+    }
+
+
+training_data = [prepare_example(e) for e in examples]
+
+for epoch in range(3):
+    total_loss = 0
+
+    for example in training_data:
+        optimizer.zero_grad()
+
+        outputs = model(**example)
+        loss = outputs.loss
+
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    print(f"Epoch {epoch + 1} | Average loss: {total_loss / len(training_data):.4f}")
+
+model.save_pretrained("models/neovim-lora-v2")
+print("Saved adapter to models/neovim-lora-v2")
