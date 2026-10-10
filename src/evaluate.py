@@ -1,5 +1,6 @@
 import gc
 import json
+import re
 from pathlib import Path
 
 import torch
@@ -7,6 +8,7 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from rag import retrieve
+from validate_lua import validate_lua
 
 MODEL_NAME = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
 DEVICE = "mps"
@@ -42,6 +44,45 @@ tokenizer = AutoTokenizer.from_pretrained(
 all_results = []
 
 
+def check_generated_code(answer, expected_event, expected_pattern):
+    blocks = re.findall(r"```lua\s*(.*?)```", answer, re.DOTALL)
+
+    if not blocks:
+        return False, "No Lua code block found"
+
+    errors = []
+
+    for block in blocks:
+        valid, output = validate_lua(
+            block,
+            expected_event,
+            expected_pattern,
+        )
+
+        if valid:
+            return True, ""
+
+        errors.append(output)
+
+    return False, "\n".join(errors)
+
+
+def check_autocmd_structure(answer):
+    blocks = re.findall(r"```lua\s*(.*?)```", answer, re.DOTALL)
+
+    if not blocks:
+        return False
+
+    for block in blocks:
+        if re.search(
+            r"nvim_create_autocmd\(\s*(?:['\"]\w+['\"]|\{\s*['\"]\w+['\"])",
+            block,
+        ):
+            return True
+
+    return False
+
+
 def evaluate(label, adapter_path=None, use_rag=False):
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
@@ -61,6 +102,7 @@ def evaluate(label, adapter_path=None, use_rag=False):
     passed = 0
     total_components = 0
     correct_components = 0
+    runtime_passed = 0
 
     print(f"\n--- {label} ---")
 
@@ -74,6 +116,7 @@ def evaluate(label, adapter_path=None, use_rag=False):
             for i, chunk in enumerate(relevant_chunks, start=1):
                 print(f"\nChunk {i}:")
                 print(chunk[:500])
+
             context = "\n\n".join(relevant_chunks)
 
         system_prompt = (
@@ -118,14 +161,27 @@ def evaluate(label, adapter_path=None, use_rag=False):
             skip_special_tokens=True,
         )
 
+        # Keyword evaluation
         missing = [item for item in test["expected"] if item not in answer]
 
         correct = len(test["expected"]) - len(missing)
         total = len(test["expected"])
 
         success = correct == total
-        passed += int(success)
+        structure_valid = check_autocmd_structure(answer)
 
+        # Runtime evaluation
+        expected_event = test["expected"][1]
+        expected_pattern = test["expected"][2]
+
+        runtime_valid, runtime_error = check_generated_code(
+            answer,
+            expected_event,
+            expected_pattern,
+        )
+
+        passed += int(success)
+        runtime_passed += int(runtime_valid)
         correct_components += correct
         total_components += total
 
@@ -133,6 +189,8 @@ def evaluate(label, adapter_path=None, use_rag=False):
             f"Test {index}: "
             f"{'PASS' if success else 'FAIL'} "
             f"| Components: {correct}/{total} "
+            f"| Structure: {'OK' if structure_valid else 'INVALID'} "
+            f"| Runtime: {'PASS' if runtime_valid else 'FAIL'} "
             f"| Missing: {missing}"
         )
 
@@ -146,12 +204,17 @@ def evaluate(label, adapter_path=None, use_rag=False):
                 "passed": success,
                 "component_score": correct / total,
                 "use_rag": use_rag,
+                "structure_valid": structure_valid,
+                "runtime_valid": runtime_valid,
+                "runtime_error": runtime_error,
             }
         )
 
     print(f"\n{label} results:")
     print(f"  Exact passes: {passed}/{len(tests)}")
     print(f"  Component accuracy: {correct_components / total_components:.1%}")
+    print(f"  Runtime passes: {runtime_passed}/{len(tests)}")
+
     del model
     gc.collect()
     torch.mps.empty_cache()

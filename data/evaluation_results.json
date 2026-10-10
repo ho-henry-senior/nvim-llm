@@ -15,7 +15,10 @@
     ],
     "passed": false,
     "component_score": 0.5,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmp_7g3a3v9/test.lua:7: Invalid 'event': 'BufNewFile,BufRead'\nstack traceback:\n\t[C]: in function 'nvim_create_autocmd'\n\t...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmp_7g3a3v9/test.lua:7: in main chunk\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmp_7g3a3v9/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmp_7g3a3v9/check.lua:7: in main chunk"
   },
   {
     "model": "Original Qwen",
@@ -33,7 +36,10 @@
     ],
     "passed": false,
     "component_score": 0.5,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": true,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmprcwbatgk/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmprcwbatgk/check.lua:7: in main chunk"
   },
   {
     "model": "Original Qwen",
@@ -50,7 +56,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": true,
+    "runtime_valid": true,
+    "runtime_error": ""
   },
   {
     "model": "Original Qwen",
@@ -67,7 +76,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": true,
+    "runtime_valid": true,
+    "runtime_error": ""
   },
   {
     "model": "Original Qwen",
@@ -87,7 +99,10 @@
     ],
     "passed": false,
     "component_score": 0.0,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpqoi_vqw7/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpqoi_vqw7/check.lua:7: in main chunk"
   },
   {
     "model": "LoRA v3",
@@ -104,7 +119,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": true,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpg4_b0exm/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpg4_b0exm/check.lua:7: in main chunk"
   },
   {
     "model": "LoRA v3",
@@ -121,7 +139,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": true,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpc2n2gaed/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpc2n2gaed/check.lua:7: in main chunk"
   },
   {
     "model": "LoRA v3",
@@ -138,7 +159,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": true,
+    "runtime_valid": true,
+    "runtime_error": ""
   },
   {
     "model": "LoRA v3",
@@ -153,7 +177,10 @@
     "missing": [],
     "passed": true,
     "component_score": 1.0,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": true,
+    "runtime_valid": true,
+    "runtime_error": ""
   },
   {
     "model": "LoRA v3",
@@ -172,7 +199,10 @@
     ],
     "passed": false,
     "component_score": 0.25,
-    "use_rag": false
+    "use_rag": false,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpizqs3x11/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpizqs3x11/check.lua:7: in main chunk"
   },
   {
     "model": "Original Qwen + RAG",
@@ -187,7 +217,10 @@
     "missing": [],
     "passed": true,
     "component_score": 1.0,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpkixt8rqh/test.lua:8: Expected 2 arguments\nstack traceback:\n\t[C]: in function 'nvim_create_autocmd'\n\t...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpkixt8rqh/test.lua:8: in main chunk\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpkixt8rqh/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpkixt8rqh/check.lua:7: in main chunk"
   },
   {
     "model": "Original Qwen + RAG",
@@ -202,7 +235,10 @@
     "missing": [],
     "passed": true,
     "component_score": 1.0,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": true,
+    "runtime_valid": true,
+    "runtime_error": ""
   },
   {
     "model": "Original Qwen + RAG",
@@ -222,7 +258,10 @@
     ],
     "passed": false,
     "component_score": 0.0,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "New JavaScript file created!\nError in command line:\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpb5lpma7b/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpb5lpma7b/check.lua:7: in main chunk"
   },
   {
     "model": "Original Qwen + RAG",
@@ -239,7 +278,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": true,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpykgt0nvp/test.lua:2: module 'lazy' not found:\n\tno field package.preload['lazy']\n\tno file './lazy.lua'\n\tno file '/opt/homebrew/share/luajit-2.1/lazy.lua'\n\tno file '/usr/local/share/lua/5.1/lazy.lua'\n\tno file '/usr/local/share/lua/5.1/lazy/init.lua'\n\tno file '/opt/homebrew/share/lua/5.1/lazy.lua'\n\tno file '/opt/homebrew/share/lua/5.1/lazy/init.lua'\n\tno file './lazy.so'\n\tno file '/usr/local/lib/lua/5.1/lazy.so'\n\tno file '/opt/homebrew/lib/lua/5.1/lazy.so'\n\tno file '/usr/local/lib/lua/5.1/loadall.so'\nstack traceback:\n\t[C]: in function 'require'\n\t...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpykgt0nvp/test.lua:2: in main chunk\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpykgt0nvp/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpykgt0nvp/check.lua:7: in main chunk"
   },
   {
     "model": "Original Qwen + RAG",
@@ -259,7 +301,10 @@
     ],
     "passed": false,
     "component_score": 0.0,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "No Lua code block found"
   },
   {
     "model": "LoRA v3 + RAG",
@@ -274,7 +319,10 @@
     "missing": [],
     "passed": true,
     "component_score": 1.0,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": true,
+    "runtime_valid": true,
+    "runtime_error": ""
   },
   {
     "model": "LoRA v3 + RAG",
@@ -291,7 +339,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmppz3741mo/test.lua:8: Expected 2 arguments\nstack traceback:\n\t[C]: in function 'nvim_create_autocmd'\n\t...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmppz3741mo/test.lua:8: in main chunk\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmppz3741mo/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmppz3741mo/check.lua:7: in main chunk"
   },
   {
     "model": "LoRA v3 + RAG",
@@ -308,7 +359,10 @@
     ],
     "passed": false,
     "component_score": 0.75,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: ...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpoo6os9u_/test.lua:2: Expected 2 arguments\nstack traceback:\n\t[C]: in function 'nvim_create_autocmd'\n\t...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpoo6os9u_/test.lua:2: in main chunk\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpoo6os9u_/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmpoo6os9u_/check.lua:7: in main chunk"
   },
   {
     "model": "LoRA v3 + RAG",
@@ -326,7 +380,10 @@
     ],
     "passed": false,
     "component_score": 0.5,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "No Lua code block found"
   },
   {
     "model": "LoRA v3 + RAG",
@@ -346,6 +403,9 @@
     ],
     "passed": false,
     "component_score": 0.0,
-    "use_rag": true
+    "use_rag": true,
+    "structure_valid": false,
+    "runtime_valid": false,
+    "runtime_error": "Error in command line:\nE5113: Lua chunk: Vim:E484: Can't open file ~/path/to/your/file.md\nstack traceback:\n\t[C]: in function 'readfile'\n\t...2t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmp_k_mhqhb/test.lua:5: in main chunk\nE5113: Lua chunk: ...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmp_k_mhqhb/check.lua:7: Expected autocommand not registered\nstack traceback:\n\t[C]: in function 'error'\n\t...t/90vwh68n42d05kysfpj8ct4h0000gn/T/tmp_k_mhqhb/check.lua:7: in main chunk"
   }
 ]
