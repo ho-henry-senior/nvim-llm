@@ -1,4 +1,6 @@
 import gc
+import json
+from pathlib import Path
 
 import torch
 from peft import PeftModel
@@ -35,6 +37,8 @@ tokenizer = AutoTokenizer.from_pretrained(
     local_files_only=True,
 )
 
+all_results = []
+
 
 def evaluate(label, adapter_path=None):
     model = AutoModelForCausalLM.from_pretrained(
@@ -53,6 +57,8 @@ def evaluate(label, adapter_path=None):
     model.eval()
 
     passed = 0
+    total_components = 0
+    correct_components = 0
 
     print(f"\n--- {label} ---")
 
@@ -95,17 +101,37 @@ def evaluate(label, adapter_path=None):
 
         missing = [item for item in test["expected"] if item not in answer]
 
-        success = len(missing) == 0
+        correct = len(test["expected"]) - len(missing)
+        total = len(test["expected"])
+
+        success = correct == total
         passed += int(success)
 
-        print(f"Test {index}: {'PASS' if success else 'FAIL'} | Missing: {missing}")
+        correct_components += correct
+        total_components += total
 
-        if not success:
-            print(f"Question: {test['question']}")
-            print(f"Answer:\n{answer[:600]}\n")
+        print(
+            f"Test {index}: "
+            f"{'PASS' if success else 'FAIL'} "
+            f"| Components: {correct}/{total} "
+            f"| Missing: {missing}"
+        )
 
-    print(f"\n{label}: {passed}/{len(tests)} passed")
+        all_results.append(
+            {
+                "model": label,
+                "question": test["question"],
+                "answer": answer,
+                "expected": test["expected"],
+                "missing": missing,
+                "passed": success,
+                "component_score": correct / total,
+            }
+        )
 
+    print(f"\n{label} results:")
+    print(f"  Exact passes: {passed}/{len(tests)}")
+    print(f"  Component accuracy: {correct_components / total_components:.1%}")
     del model
     gc.collect()
     torch.mps.empty_cache()
@@ -114,3 +140,10 @@ def evaluate(label, adapter_path=None):
 evaluate("Original Qwen")
 evaluate("LoRA v2", "models/neovim-lora-v2")
 evaluate("LoRA v3", "models/neovim-lora-v3")
+
+Path("data").mkdir(exist_ok=True)
+
+with open("data/evaluation_results.json", "w") as f:
+    json.dump(all_results, f, indent=2)
+
+print("\nSaved results to data/evaluation_results.json")

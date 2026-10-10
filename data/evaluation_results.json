@@ -1,0 +1,251 @@
+[
+  {
+    "model": "Original Qwen",
+    "question": "How do I run Lua code every time I enter a Python buffer?",
+    "answer": "To run Lua code every time you enter a Python buffer in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Python file is opened or created. Here's how you can set it up:\n\n```lua\n-- Define the Lua function to be executed\nlocal my_lua_function = function()\n  print(\"Lua function executed!\")\nend\n\n-- Create an autocommand that runs the Lua function when a Python file is opened or created\nvim.api.nvim_create_autocmd('BufNewFile,BufRead', {\n  pattern = '*.py',\n  command = 'lua my_lua_function()'\n})\n```\n\nThis script defines a Lua function called `my_lua_function` and then creates an autocommand that triggers this function whenever a new Python file (`*.py`) is opened or read. The `pattern` option specifies the file patterns to match (in this case, all `.py` files), and the `command` option specifies the Lua function to execute.\n\nMake sure to place this code in your Neovim configuration file, typically located at `~/.config/nvim/init.lua`. After saving the file, restart Neovim for the",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufEnter",
+      "*.py",
+      "callback"
+    ],
+    "missing": [
+      "BufEnter",
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.5
+  },
+  {
+    "model": "Original Qwen",
+    "question": "How do I run a Lua function when a Markdown file is saved?",
+    "answer": "To run a Lua function when a Markdown file is saved in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Markdown file is written. Here's how you can set it up:\n\n```lua\n-- Define your Lua function\nfunction MyMarkdownSaveFunction()\n    print(\"Markdown file has been saved!\")\nend\n\n-- Create an autocommand to run the function when a Markdown file is saved\nvim.api.nvim_create_autocmd('BufWritePost', {\n    pattern = '*.markdown',\n    command = 'lua MyMarkdownSaveFunction()'\n})\n```\n\nIn this example:\n- The `MyMarkdownSaveFunction` is defined as a simple function that prints a message.\n- The `vim.api.nvim_create_autocmd` function is used to create an autocommand named `BufWritePost`.\n- The `pattern` option specifies that this autocommand should only trigger for files with the `.markdown` extension.\n- The `command` option specifies the Lua function to be executed after the buffer is written.\n\nThis setup ensures that whenever a Markdown file is saved, the `MyMarkdownSaveFunction` will be called, allowing you to",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufWritePost",
+      "*.md",
+      "callback"
+    ],
+    "missing": [
+      "*.md",
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.5
+  },
+  {
+    "model": "Original Qwen",
+    "question": "How do I run Lua code when a new JavaScript file is created?",
+    "answer": "To run Lua code when a new JavaScript file is created in Neovim, you can use the `autocmd` feature to monitor file creation events and then execute your Lua script. Here's an example of how you can achieve this:\n\n```lua\n-- Define the path to your Lua script\nlocal lua_script_path = vim.fn.expand('~/.config/nvim/lua/my_lua_script.lua')\n\n-- Create an autocmd that triggers when a new JavaScript file is created\nvim.api.nvim_create_autocmd('BufNewFile', {\n  pattern = '*.js',\n  command = 'lua require(\"my_lua_script\")'\n})\n```\n\nIn this example:\n- We first define the path to our Lua script using `vim.fn.expand`.\n- We then create an `autocmd` that listens for `BufNewFile` events, which occur when a new buffer (file) is created.\n- The `pattern` option specifies that we only want to trigger the autocommand on files with the `.js` extension.\n- The `command` option specifies the Lua script to be executed when the event occurs.\n\nMake sure to replace `'~/.config/nvim/lua/my_lua_script.lua'` with the actual path to",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufNewFile",
+      "*.js",
+      "callback"
+    ],
+    "missing": [
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.75
+  },
+  {
+    "model": "Original Qwen",
+    "question": "How do I run Lua code before a Python file is saved?",
+    "answer": "To run Lua code before a Python file is saved in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Python file is saved. Here's how you can set up this:\n\n```lua\n-- Define the Lua function to be executed\nlocal my_lua_function = function()\n  print(\"Running Lua function before saving a Python file\")\nend\n\n-- Create an autocommand that runs the Lua function before saving a Python file\nvim.api.nvim_create_autocmd('BufWritePre', {\n  pattern = '*.py',\n  command = 'lua my_lua_function()'\n})\n```\n\nIn this example:\n- The `my_lua_function` is defined as a simple print statement.\n- The `vim.api.nvim_create_autocmd` function is used to create an autocommand named `BufWritePre`.\n- The `pattern` option specifies that this autocommand should only trigger for files with the `.py` extension.\n- The `command` option specifies the Lua function to be executed.\n\nThis setup ensures that your Lua function will be called every time a Python file is saved in Neovim.",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufWritePre",
+      "*.py",
+      "callback"
+    ],
+    "missing": [
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.75
+  },
+  {
+    "model": "Original Qwen",
+    "question": "How do I run Lua code after reading a Markdown file?",
+    "answer": "To run Lua code after reading a Markdown file in Neovim, you can use the `vim.fn.readfile` function to read the content of the file and then execute it using `vim.eval`. Here's an example:\n\n```lua\n-- Define a function to run Lua code from a Markdown file\nfunction RunLuaFromMarkdown()\n    -- Read the content of the current buffer as Markdown\n    local markdown_content = vim.fn.readfile(vim.fn.bufname(), 0)\n    \n    -- Convert Markdown to Lua code (this is a simple conversion for demonstration purposes)\n    local lua_code = \"local markdown = '\" .. markdown_content:gsub('\\n', '\\\\n') .. \"'\\n\"\n    lua_code = lua_code .. \"print(markdown)\"\n    \n    -- Execute the Lua code\n    vim.eval(lua_code)\nend\n\n-- Bind the function to a key (e.g., Ctrl+Shift+R)\nvim.api.nvim_set_keymap('n', '<C-S-R>', ':RunLuaFromMarkdown<CR>', { noremap = true })\n```\n\nIn this example:\n1. The `RunLuaFromMarkdown` function reads the content of the current buffer as Markdown.\n2. It converts the Markdown content",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufReadPost",
+      "*.md",
+      "callback"
+    ],
+    "missing": [
+      "nvim_create_autocmd",
+      "BufReadPost",
+      "*.md",
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.0
+  },
+  {
+    "model": "LoRA v2",
+    "question": "How do I run Lua code every time I enter a Python buffer?",
+    "answer": "To run Lua code every time you enter a Python buffer in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Python file is opened or created. Here's how you can set it up:\n\n```lua\n-- Define the Lua function to be executed\nlocal my_lua_function = function()\n  print(\"Lua function executed!\")\nend\n\n-- Create an autocommand that runs the Lua function when a Python file is opened or created\nvim.api.nvim_create_autocmd('BufNewFile,BufRead', {\n  pattern = '*.py',\n  command = 'lua my_lua_function()'\n})\n```\n\nThis script defines a Lua function called `my_lua_function` and then creates an autocommand that triggers this function whenever a new Python file (`*.py`) is opened or read. The `pattern` option specifies the file patterns to match (in this case, all `.py` files), and the `command` option specifies the Lua function to execute.\n\nMake sure to place this code in your Neovim configuration file, typically located at `~/.config/nvim/init.lua`. After saving the file, restart Neovim for the",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufEnter",
+      "*.py",
+      "callback"
+    ],
+    "missing": [
+      "BufEnter",
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.5
+  },
+  {
+    "model": "LoRA v2",
+    "question": "How do I run a Lua function when a Markdown file is saved?",
+    "answer": "To run a Lua function when a Markdown file is saved in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Markdown file is written. Here's how you can set it up:\n\n```lua\n-- Define your Lua function\nfunction MyMarkdownSaveFunction()\n    print(\"Markdown file has been saved!\")\nend\n\n-- Create an autocommand to run the function when a Markdown file is saved\nvim.api.nvim_create_autocmd('BufWritePost', {\n    pattern = '*.markdown',\n    command = 'lua MyMarkdownSaveFunction()'\n})\n```\n\nIn this example:\n- The `MyMarkdownSaveFunction` is defined as a simple function that prints a message.\n- The `vim.api.nvim_create_autocmd` function is used to create an autocommand named `BufWritePost`.\n- The `pattern` option specifies that this autocommand should only trigger for files with the `.markdown` extension.\n- The `command` option specifies the Lua function to be executed after the buffer is written.\n\nThis setup ensures that whenever a Markdown file is saved, the `MyMarkdownSaveFunction` will be called, allowing you to",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufWritePost",
+      "*.md",
+      "callback"
+    ],
+    "missing": [
+      "*.md",
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.5
+  },
+  {
+    "model": "LoRA v2",
+    "question": "How do I run Lua code when a new JavaScript file is created?",
+    "answer": "To run Lua code when a new JavaScript file is created in Neovim, you can use the `autocmd` feature to monitor file creation events and then execute your Lua script. Here's an example of how you can achieve this:\n\n```lua\n-- Define the path where your Lua script is located\nlocal lua_script_path = vim.fn.expand('~/.config/nvim/lua/my_lua_script.lua')\n\n-- Create an autocmd that triggers when a new JavaScript file is created\nvim.api.nvim_create_autocmd('BufNewFile', {\n  pattern = '*.js',\n  command = 'lua require(\"my_lua_script\")'\n})\n```\n\nIn this example:\n- We first define the path to our Lua script using `vim.fn.expand`.\n- We then create an `autocmd` that listens for `BufNewFile` events, which occur when a new buffer (file) is created.\n- The `pattern` option specifies that we only want to trigger the autocommand on files with the `.js` extension.\n- The `command` option specifies the Lua code to be executed when the event occurs. In this case, it calls the `require` function to load and execute the Lua script.\n\nMake sure",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufNewFile",
+      "*.js",
+      "callback"
+    ],
+    "missing": [
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.75
+  },
+  {
+    "model": "LoRA v2",
+    "question": "How do I run Lua code before a Python file is saved?",
+    "answer": "To run Lua code before a Python file is saved in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Python file is saved. Here's how you can set it up:\n\n```lua\n-- Define the Lua function to be executed\nlocal my_lua_function = function()\n  print(\"Lua function executed before saving a Python file.\")\nend\n\n-- Create an autocommand that runs the Lua function before saving a Python file\nvim.api.nvim_create_autocmd('BufWritePre', {\n  pattern = '*.py',\n  command = 'lua my_lua_function()'\n})\n```\n\nIn this example:\n- The `my_lua_function` is defined as a simple print statement.\n- The `vim.api.nvim_create_autocmd` function is used to create an autocommand named `BufWritePre`.\n- The `pattern` option specifies that this autocommand should only trigger for files with the `.py` extension.\n- The `command` option contains the Lua code to be executed, which calls `my_lua_function`.\n\nThis setup ensures that your Lua function will be called every time a Python file is saved in Neovim.",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufWritePre",
+      "*.py",
+      "callback"
+    ],
+    "missing": [
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.75
+  },
+  {
+    "model": "LoRA v2",
+    "question": "How do I run Lua code after reading a Markdown file?",
+    "answer": "To run Lua code after reading a Markdown file in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that runs your Lua script when the Markdown file is opened. Here's a step-by-step guide and a working Lua example:\n\n1. **Create a Markdown file**: First, create a Markdown file (e.g., `example.md`) with some content.\n\n2. **Write a Lua script**: Create a Lua script (e.g., `run_lua.lua`) that will be executed after the Markdown file is opened.\n\n3. **Configure Neovim**: Use the `vim.api.nvim_create_autocmd` function to set up an autocommand that runs the Lua script when the Markdown file is opened.\n\nHere's the complete setup:\n\n### Step 1: Create a Markdown file (`example.md`)\n```markdown\n# Hello, World!\n\nThis is a simple markdown file.\n```\n\n### Step 2: Write a Lua script (`run_lua.lua`)\n```lua\n-- run_lua.lua\nlocal vim = require('vim')\n\nfunction run_lua()\n    -- Your Lua code here\n    print(\"Lua script executed!\")\nend\n\nvim.api.nvim",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufReadPost",
+      "*.md",
+      "callback"
+    ],
+    "missing": [
+      "BufReadPost",
+      "*.md",
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.25
+  },
+  {
+    "model": "LoRA v3",
+    "question": "How do I run Lua code every time I enter a Python buffer?",
+    "answer": "To run Lua code every time you enter a Python buffer in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Python file is opened or created. Here's how you can set it up:\n\n```lua\n-- Define the Lua function to be executed\nlocal my_lua_function = function()\n  print(\"Lua function executed!\")\nend\n\n-- Create an autocommand for Python files\nvim.api.nvim_create_autocmd('BufNewFile', {\n  pattern = '*.py',\n  callback = my_lua_function,\n})\n```\n\nThis code snippet defines a Lua function called `my_lua_function` that prints \"Lua function executed!\" whenever a new Python file is created or opened. The `vim.api.nvim_create_autocmd` function is used to create an autocommand named 'BufNewFile' that matches any file with a `.py` extension. When this event occurs, the specified callback function (`my_lua_function`) is executed.\n\nMake sure to place this code in your Neovim configuration file (e.g., `init.lua`). This setup will ensure that the Lua function runs every time you open or create a Python file in Ne",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufEnter",
+      "*.py",
+      "callback"
+    ],
+    "missing": [
+      "BufEnter"
+    ],
+    "passed": false,
+    "component_score": 0.75
+  },
+  {
+    "model": "LoRA v3",
+    "question": "How do I run a Lua function when a Markdown file is saved?",
+    "answer": "To run a Lua function when a Markdown file is saved in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Markdown file is written. Here's how you can set it up:\n\n```lua\n-- Define your Lua function\nfunction MyMarkdownSaveFunction()\n    print(\"Markdown file has been saved!\")\nend\n\n-- Create an autocommand for Markdown files\nvim.api.nvim_create_autocmd('BufWritePost', {\n    pattern = '*.markdown',\n    callback = function()\n        MyMarkdownSaveFunction()\n    end,\n})\n```\n\nIn this example:\n- The `MyMarkdownSaveFunction` is defined as a simple function that prints a message.\n- The `vim.api.nvim_create_autocmd` function is used to create an autocommand named 'BufWritePost' which is triggered after a buffer (in this case, a Markdown file) is written.\n- The `pattern` option specifies that this autocommand should only trigger for files with the `.markdown` extension.\n- The `callback` option defines the action to be performed when the autocommand is triggered. In this case, it calls `MyMarkdownSave",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufWritePost",
+      "*.md",
+      "callback"
+    ],
+    "missing": [
+      "*.md"
+    ],
+    "passed": false,
+    "component_score": 0.75
+  },
+  {
+    "model": "LoRA v3",
+    "question": "How do I run Lua code when a new JavaScript file is created?",
+    "answer": "To run Lua code when a new JavaScript file is created in Neovim, you can use the `autocmd` feature to hook into the `BufNewFile` event. This event is triggered whenever a new buffer (file) is created.\n\nHere's an example of how you can set up this:\n\n```lua\n-- Define a function that will be executed when a new JavaScript file is created\nlocal function run_lua_on_js_file()\n  -- Check if the current buffer is a JavaScript file\n  if vim.fn.filetype() == 'javascript' then\n    -- Execute your Lua code here\n    print('Running Lua code for JavaScript file')\n    -- You can add any Lua code you need here\n  end\nend\n\n-- Set up an autocmd to call the function when a new JavaScript file is created\nvim.api.nvim_create_autocmd('BufNewFile', {\n  pattern = '*.js',\n  command = 'call run_lua_on_js_file()'\n})\n```\n\nIn this example:\n- The `run_lua_on_js_file` function checks if the current buffer is a JavaScript file by comparing the filetype with `'javascript'`.\n- If it is a JavaScript file, the function prints a",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufNewFile",
+      "*.js",
+      "callback"
+    ],
+    "missing": [
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.75
+  },
+  {
+    "model": "LoRA v3",
+    "question": "How do I run Lua code before a Python file is saved?",
+    "answer": "To run Lua code before a Python file is saved in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that triggers when a Python file is saved. Here's how you can set it up:\n\n```lua\n-- Define the Lua function to be executed\nlocal my_lua_function = function()\n  print(\"Lua function executed before saving a Python file.\")\nend\n\n-- Create an autocommand that runs the Lua function before saving a Python file\nvim.api.nvim_create_autocmd('BufWritePre', {\n  pattern = '*.py',\n  callback = my_lua_function,\n})\n```\n\nThis code snippet defines a Lua function `my_lua_function` that prints a message to the console. It then creates an autocommand named 'BufWritePre' that targets files with the `.py` extension and executes the `my_lua_function` before each save operation.\n\nMake sure to place this code in your Neovim configuration file (e.g., `init.lua`) or any other appropriate location where you want the autocommand to be triggered.",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufWritePre",
+      "*.py",
+      "callback"
+    ],
+    "missing": [],
+    "passed": true,
+    "component_score": 1.0
+  },
+  {
+    "model": "LoRA v3",
+    "question": "How do I run Lua code after reading a Markdown file?",
+    "answer": "To run Lua code after reading a Markdown file in Neovim, you can use the `vim.api.nvim_create_autocmd` function to create an autocommand that runs your Lua code when the file is read. Here's a step-by-step guide and a working Lua example:\n\n1. First, ensure you have the necessary plugins installed. You might need `nvim-treesitter` for syntax highlighting and `nvim-lspconfig` for language server support.\n\n2. Create a new Lua file, let's call it `markdown_linter.lua`, and add the following code:\n\n```lua\n-- markdown_linter.lua\n\nlocal M = {}\n\nfunction M.run_linting()\n  -- Example: Run a simple linting tool like `markdownlint`\n  vim.cmd('markdownlint .')\nend\n\nreturn M\n```\n\n3. Next, create another Lua file, let's call it `markdown_reader.lua`, and add the following code:\n\n```lua\n-- markdown_reader.lua\n\nlocal M = {}\n\nfunction M.read_markdown(file_path)\n  -- Example: Read the content of the Markdown file\n  local file_content = vim.fn.readfile(file_path, 'b')\n  return file_content\nend\n\nreturn",
+    "expected": [
+      "nvim_create_autocmd",
+      "BufReadPost",
+      "*.md",
+      "callback"
+    ],
+    "missing": [
+      "BufReadPost",
+      "*.md",
+      "callback"
+    ],
+    "passed": false,
+    "component_score": 0.25
+  }
+]
