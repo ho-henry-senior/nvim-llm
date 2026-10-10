@@ -1,0 +1,116 @@
+import gc
+
+import torch
+from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+MODEL_NAME = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+DEVICE = "mps"
+
+tests = [
+    {
+        "question": "How do I run Lua code every time I enter a Python buffer?",
+        "expected": ["nvim_create_autocmd", "BufEnter", "*.py", "callback"],
+    },
+    {
+        "question": "How do I run a Lua function when a Markdown file is saved?",
+        "expected": ["nvim_create_autocmd", "BufWritePost", "*.md", "callback"],
+    },
+    {
+        "question": "How do I run Lua code when a new JavaScript file is created?",
+        "expected": ["nvim_create_autocmd", "BufNewFile", "*.js", "callback"],
+    },
+    {
+        "question": "How do I run Lua code before a Python file is saved?",
+        "expected": ["nvim_create_autocmd", "BufWritePre", "*.py", "callback"],
+    },
+    {
+        "question": "How do I run Lua code after reading a Markdown file?",
+        "expected": ["nvim_create_autocmd", "BufReadPost", "*.md", "callback"],
+    },
+]
+
+tokenizer = AutoTokenizer.from_pretrained(
+    MODEL_NAME,
+    local_files_only=True,
+)
+
+
+def evaluate(label, adapter_path=None):
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME,
+        dtype=torch.float16,
+        local_files_only=True,
+    ).to(DEVICE)
+
+    if adapter_path:
+        model = PeftModel.from_pretrained(
+            model,
+            adapter_path,
+            local_files_only=True,
+        )
+
+    model.eval()
+
+    passed = 0
+
+    print(f"\n--- {label} ---")
+
+    for index, test in enumerate(tests, start=1):
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a Neovim Lua configuration expert. "
+                    "Answer using Neovim's Lua API, not Vimscript. "
+                    "Provide a working Lua example."
+                ),
+            },
+            {"role": "user", "content": test["question"]},
+        ]
+
+        prompt = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+
+        inputs = tokenizer(
+            prompt,
+            return_tensors="pt",
+        ).to(DEVICE)
+
+        with torch.no_grad():
+            output = model.generate(
+                **inputs,
+                max_new_tokens=250,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+
+        answer = tokenizer.decode(
+            output[0][inputs["input_ids"].shape[1] :],
+            skip_special_tokens=True,
+        )
+
+        missing = [item for item in test["expected"] if item not in answer]
+
+        success = len(missing) == 0
+        passed += int(success)
+
+        print(f"Test {index}: {'PASS' if success else 'FAIL'} | Missing: {missing}")
+
+        if not success:
+            print(f"Question: {test['question']}")
+            print(f"Answer:\n{answer[:600]}\n")
+
+    print(f"\n{label}: {passed}/{len(tests)} passed")
+
+    del model
+    gc.collect()
+    torch.mps.empty_cache()
+
+
+evaluate("Original Qwen")
+evaluate("LoRA v2", "models/neovim-lora-v2")
+evaluate("LoRA v3", "models/neovim-lora-v3")

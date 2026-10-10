@@ -3,3 +3,7 @@
 {"question":"How do I restrict an autocommand to Python files?","answer":"Use the pattern option: vim.api.nvim_create_autocmd('BufWritePost', { pattern = '*.py', callback = function() print('Python file saved') end })"}
 {"question":"How do I create an autocommand group?","answer":"Use vim.api.nvim_create_augroup('MyGroup', { clear = true }) to create a named group."}
 {"question":"How do I remove an autocommand?","answer":"Use vim.api.nvim_del_autocmd(id), where id is the identifier returned by vim.api.nvim_create_autocmd."}
+{"question":"Which event runs when entering an existing buffer?","answer":"Use BufEnter. It triggers whenever you enter a buffer."}
+{"question":"Which event runs when creating a new file?","answer":"Use BufNewFile. It triggers when editing a file that does not yet exist."}
+{"question":"Which event runs when reading a file into a buffer?","answer":"Use BufReadPost. It triggers after a file has been read into a buffer."}
+{"question":"How do I run Lua code when entering a Markdown buffer?","answer":"Use vim.api.nvim_create_autocmd('BufEnter', { pattern = '*.md', callback = function() print('Markdown entered') end })"}

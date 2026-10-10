@@ -88,5 +88,5 @@ for epoch in range(3):
 
     print(f"Epoch {epoch + 1} | Average loss: {total_loss / len(training_data):.4f}")
 
-model.save_pretrained("models/neovim-lora-v2")
-print("Saved adapter to models/neovim-lora-v2")
+model.save_pretrained("models/neovim-lora-v3")
+print("Saved adapter to models/neovim-lora-v3")

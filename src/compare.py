@@ -1,14 +1,12 @@
 import gc
+
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 model_name = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
 
-question = (
-    "How do I run a Lua function whenever "
-    "a Markdown file is opened in Neovim?"
-)
+question = "How do I execute a Lua function every time I switch to a Python buffer?"
 
 tokenizer = AutoTokenizer.from_pretrained(
     model_name,
@@ -57,7 +55,7 @@ def test_model(label, adapter_path=None):
         )
 
     answer = tokenizer.decode(
-        output[0][inputs["input_ids"].shape[1]:],
+        output[0][inputs["input_ids"].shape[1] :],
         skip_special_tokens=True,
     )
 
@@ -80,4 +78,9 @@ test_model(
 test_model(
     "LoRA v2",
     "models/neovim-lora-v2",
+)
+
+test_model(
+    "LoRA v3",
+    "models/neovim-lora-v3",
 )

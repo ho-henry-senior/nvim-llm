@@ -93,6 +93,65 @@ The first run downloads `Qwen/Qwen2.5-Coder-1.5B-Instruct` from Hugging Face. Th
 currently hard-coded in `src/run.py`; the script does not yet accept user input or use the Lua
 documentation as model context.
 
+### Qwen Tokenizer and Chat Templates
+
+The Hugging Face tokenizer has two related responsibilities:
+
+1. **Chat formatting:** `tokenizer.apply_chat_template()` converts structured messages into the
+   conversation format Qwen expects.
+2. **Tokenization:** The tokenizer converts text into numerical token IDs and decodes generated IDs
+   back into text.
+
+For Qwen2.5-Instruct, messages typically use these dictionary keys:
+
+| Key | Meaning |
+|---|---|
+| `role` | Who is speaking (`system`, `user`, `assistant`, or `tool`) |
+| `content` | The message text |
+| `tool_calls` | Optional tool-call information |
+
+Example:
+
+```python
+messages = [
+    {"role": "system", "content": "You are a Neovim Lua expert."},
+    {"role": "user", "content": "What is BufEnter?"},
+]
+
+prompt = tokenizer.apply_chat_template(
+    messages,
+    tokenize=False,
+    add_generation_prompt=True,
+)
+```
+
+The resulting prompt contains special markers such as:
+
+```text
+<|im_start|>system
+You are a Neovim Lua expert.
+<|im_end|>
+<|im_start|>user
+What is BufEnter?
+<|im_end|>
+<|im_start|>assistant
+```
+
+**Important distinctions:**
+
+- `role` and `content` are keys interpreted by the chat template, not special tokens understood
+  directly by the neural network.
+- `<|im_start|>` and `<|im_end|>` are special tokens recognised by Qwen.
+- The role labels (`system`, `user`, `assistant`) have meanings Qwen learned during training.
+- The chat template formats the conversation; it does not perform reasoning.
+- Chat templates vary between model families.
+
+To inspect the actual Qwen template:
+
+```python
+print(tokenizer.chat_template)
+```
+
 ## Documentation sources
 
 The `docs/` directory holds Vim and Neovim reference documentation. Neovim help files can be copied
