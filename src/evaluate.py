@@ -110,7 +110,13 @@ def evaluate(label, adapter_path=None, use_rag=False):
         context = ""
 
         if use_rag:
-            relevant_chunks = retrieve(test["question"])
+            # relevant_chunks = retrieve(test["question"])
+            relevant_chunks = [
+                chunk
+                for chunk in retrieve(test["question"])
+                if "nvim_create_autocmd({event}, {opts})" in chunk
+            ]
+
             print(f"\nRetrieved documentation for: {test['question']}")
 
             for i, chunk in enumerate(relevant_chunks, start=1):
