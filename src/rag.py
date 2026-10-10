@@ -1,4 +1,3 @@
-
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 
@@ -38,10 +37,12 @@ for filename in files:
     file_chunks = create_chunks(docs)
 
     for chunk in file_chunks:
-        chunks.append({
-            "source": filename,
-            "text": chunk,
-        })
+        chunks.append(
+            {
+                "source": filename,
+                "text": chunk,
+            }
+        )
 
 print("Number of chunks:", len(chunks))
 
@@ -58,41 +59,21 @@ chunk_texts = [chunk["text"] for chunk in chunks]
 embeddings = model.encode(chunk_texts)
 
 
-# 4. Test different questions
-questions = [
-    "How do I create an autocmd in Lua?",
-    "How do I create a Neovim autocommand?",
-    "How do I use nvim_create_autocmd?",
-]
-
-
-for question in questions:
-    # Convert the question into an embedding
+def retrieve(question, top_k=3):
     question_embedding = model.encode(question)
-
-    # Calculate semantic similarity scores
-    scores = cos_sim(question_embedding, embeddings)[0]
-
-    # Boost chunks containing this exact API name
-    keyword = "nvim_create_autocmd"
+    scores = cos_sim(question_embedding, embeddings)[0].clone()
 
     for i, chunk in enumerate(chunks):
-        if keyword in chunk["text"]:
+        if "nvim_create_autocmd" in chunk["text"]:
             scores[i] += 0.3
 
-    # Find the 5 highest-scoring chunks
-    best_matches = scores.argsort(descending=True)[:5]
+    best_matches = scores.argsort(descending=True)[:top_k]
 
-    print(f"\n\nQUESTION: {question}")
+    return [chunks[int(i)]["text"] for i in best_matches]
 
-    for index in best_matches:
-        chunk = chunks[index]
+if __name__ == "__main__":
+    question = "How do I create an autocmd in Lua?"
 
-        print("\n--- MATCH ---")
-        print("Score:", scores[index].item())
-        print("Source:", chunk["source"])
-        print(chunk["text"][:300].replace("\n", " "))
-
-
-# Stop here while testing retrieval.
-# We'll reconnect Qwen once we're happy with the results.
+    for chunk in retrieve(question):
+        print(chunk[:300])
+        print("---")

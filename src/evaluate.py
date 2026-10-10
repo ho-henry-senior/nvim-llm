@@ -6,6 +6,8 @@ import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+from rag import retrieve
+
 MODEL_NAME = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
 DEVICE = "mps"
 
@@ -40,7 +42,7 @@ tokenizer = AutoTokenizer.from_pretrained(
 all_results = []
 
 
-def evaluate(label, adapter_path=None):
+def evaluate(label, adapter_path=None, use_rag=False):
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
         dtype=torch.float16,
@@ -63,15 +65,32 @@ def evaluate(label, adapter_path=None):
     print(f"\n--- {label} ---")
 
     for index, test in enumerate(tests, start=1):
+        context = ""
+
+        if use_rag:
+            relevant_chunks = retrieve(test["question"])
+            print(f"\nRetrieved documentation for: {test['question']}")
+
+            for i, chunk in enumerate(relevant_chunks, start=1):
+                print(f"\nChunk {i}:")
+                print(chunk[:500])
+            context = "\n\n".join(relevant_chunks)
+
+        system_prompt = (
+            "You are a Neovim Lua configuration expert. "
+            "Answer using Neovim's Lua API, not Vimscript. "
+            "Provide a working Lua example."
+        )
+
+        if use_rag:
+            system_prompt += (
+                "\n\nUse the following Neovim documentation "
+                "to answer the question. "
+                "Do not invent APIs or events.\n\n" + context
+            )
+
         messages = [
-            {
-                "role": "system",
-                "content": (
-                    "You are a Neovim Lua configuration expert. "
-                    "Answer using Neovim's Lua API, not Vimscript. "
-                    "Provide a working Lua example."
-                ),
-            },
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": test["question"]},
         ]
 
@@ -126,6 +145,7 @@ def evaluate(label, adapter_path=None):
                 "missing": missing,
                 "passed": success,
                 "component_score": correct / total,
+                "use_rag": use_rag,
             }
         )
 
@@ -138,8 +158,22 @@ def evaluate(label, adapter_path=None):
 
 
 evaluate("Original Qwen")
-evaluate("LoRA v2", "models/neovim-lora-v2")
-evaluate("LoRA v3", "models/neovim-lora-v3")
+
+evaluate(
+    "LoRA v3",
+    "models/neovim-lora-v3",
+)
+
+evaluate(
+    "Original Qwen + RAG",
+    use_rag=True,
+)
+
+evaluate(
+    "LoRA v3 + RAG",
+    "models/neovim-lora-v3",
+    use_rag=True,
+)
 
 Path("data").mkdir(exist_ok=True)
 
