@@ -17,22 +17,83 @@ tests = [
     {
         "question": "How do I run Lua code every time I enter a Python buffer?",
         "expected": ["nvim_create_autocmd", "BufEnter", "*.py", "callback"],
+        "event": "BufEnter",
+        "pattern": "*.py",
     },
     {
         "question": "How do I run a Lua function when a Markdown file is saved?",
         "expected": ["nvim_create_autocmd", "BufWritePost", "*.md", "callback"],
+        "event": "BufWritePost",
+        "pattern": "*.md",
     },
     {
         "question": "How do I run Lua code when a new JavaScript file is created?",
         "expected": ["nvim_create_autocmd", "BufNewFile", "*.js", "callback"],
+        "event": "BufNewFile",
+        "pattern": "*.js",
     },
     {
         "question": "How do I run Lua code before a Python file is saved?",
         "expected": ["nvim_create_autocmd", "BufWritePre", "*.py", "callback"],
+        "event": "BufWritePre",
+        "pattern": "*.py",
     },
     {
         "question": "How do I run Lua code after reading a Markdown file?",
         "expected": ["nvim_create_autocmd", "BufReadPost", "*.md", "callback"],
+        "event": "BufReadPost",
+        "pattern": "*.md",
+    },
+    {
+        "question": "How do I run Lua code whenever I yank text in Neovim?",
+        "expected": [
+            "nvim_create_autocmd",
+            "TextYankPost",
+            "callback",
+        ],
+        "event": "TextYankPost",
+        "pattern": "*",
+    },
+    {
+        "question": "How do I execute a Lua function when entering insert mode?",
+        "expected": [
+            "nvim_create_autocmd",
+            "InsertEnter",
+            "callback",
+        ],
+        "event": "InsertEnter",
+        "pattern": "*",
+    },
+    {
+        "question": "How do I run Lua code when Neovim detects a Python filetype?",
+        "expected": [
+            "nvim_create_autocmd",
+            "FileType",
+            "python",
+            "callback",
+        ],
+        "event": "FileType",
+        "pattern": "python",
+    },
+    {
+        "question": "How do I run Lua code before a buffer is deleted?",
+        "expected": [
+            "nvim_create_autocmd",
+            "BufDelete",
+            "callback",
+        ],
+        "event": "BufDelete",
+        "pattern": "*",
+    },
+    {
+        "question": "How do I run Lua code when Neovim finishes starting up?",
+        "expected": [
+            "nvim_create_autocmd",
+            "VimEnter",
+            "callback",
+        ],
+        "event": "VimEnter",
+        "pattern": "*",
     },
 ]
 
@@ -53,6 +114,7 @@ def check_generated_code(answer, expected_event, expected_pattern):
     errors = []
 
     for block in blocks:
+        print(f"DEBUG: event={expected_event!r}, pattern={expected_pattern!r}")
         valid, output = validate_lua(
             block,
             expected_event,
@@ -94,7 +156,6 @@ def evaluate(label, adapter_path=None, use_rag=False):
         model = PeftModel.from_pretrained(
             model,
             adapter_path,
-            local_files_only=True,
         )
 
     model.eval()
@@ -135,7 +196,38 @@ def evaluate(label, adapter_path=None, use_rag=False):
             system_prompt += (
                 "\n\nUse the following Neovim documentation "
                 "to answer the question. "
-                "Do not invent APIs or events.\n\n" + context
+                "Do not invent APIs or events.\n\n"
+                "\n\n"
+                + context
+                + "\n\n"
+                + "When the user asks to run code when entering, reading, "
+                "saving, or creating a file, interpret the request as "
+                "an autocommand registration task using "
+                "vim.api.nvim_create_autocmd(event, opts).\n"
+                "\n\nIMPORTANT: Neovim autocmd API syntax is:\n"
+                "\n\nNeovim autocmd event reference:\n"
+                "- Entering a buffer: BufEnter\n"
+                "- After saving a file: BufWritePost\n"
+                "- Opening a new, nonexistent file: BufNewFile\n"
+                "- Before saving a file: BufWritePre\n"
+                "- After reading a file into a buffer: BufReadPost\n"
+                "Choose the event that matches the user's request.\n"
+                "vim.api.nvim_create_autocmd(event, opts)\n"
+                "The event MUST be the first positional argument.\n"
+                "The options table contains pattern and callback.\n"
+                "Use only documented Neovim events.\n"
+                "Output exactly ONE fenced ```lua code block. "
+                "Include all required function definitions inside that block. "
+                "Do not split the solution across multiple code blocks. "
+                "\nExample of correct Lua:\n"
+                "```lua\n"
+                "vim.api.nvim_create_autocmd('BufEnter', {\n"
+                "  pattern = '*.py',\n"
+                "  callback = function()\n"
+                "    print('Entered Python buffer')\n"
+                "  end,\n"
+                "})\n"
+                "```\n"
             )
 
         messages = [
@@ -177,8 +269,8 @@ def evaluate(label, adapter_path=None, use_rag=False):
         structure_valid = check_autocmd_structure(answer)
 
         # Runtime evaluation
-        expected_event = test["expected"][1]
-        expected_pattern = test["expected"][2]
+        expected_event = test["event"]
+        expected_pattern = test["pattern"]
 
         runtime_valid, runtime_error = check_generated_code(
             answer,

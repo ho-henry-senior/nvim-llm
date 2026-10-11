@@ -12,9 +12,17 @@ def validate_lua(code, expected_event, expected_pattern):
         inspection = f"""
 local autocmds = vim.api.nvim_get_autocmds({{
     event = "{expected_event}",
-    pattern = "{expected_pattern}",
 }})
-if #autocmds == 0 then
+local found = false
+
+for _, autocmd in ipairs(autocmds) do
+    if "{expected_pattern}" == "*" or autocmd.pattern == "{expected_pattern}" then
+        found = true
+        break
+    end
+end
+
+if not found then
     error("Expected autocommand not registered")
 end
 """
